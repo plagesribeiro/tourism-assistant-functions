@@ -1,8 +1,7 @@
 import OpenAI from "openai";
 
 const openaiClient = new OpenAI({
-  organization: "org-XI3OPbuger4EFyUWmhRfwzeo",
-  apiKey: "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",
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 const positivenessRating = async (text: string) => {
