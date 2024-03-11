@@ -10,7 +10,7 @@ const openaiClient = new OpenAI({
 const positivenessRating = async (text: string) => {
   try {
     const responseOpenai = await openaiClient.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-3.5-turbo",
       messages: [{role: "user", content: `Classify the comment responding with a number between 0 and 1. 
       Being 0 a very negative comment and being 1 a very positive comment. The comment is: ${text}`}],
     });
@@ -34,7 +34,7 @@ const positivenessRating = async (text: string) => {
 const usefulnessRating = async (text: string) => {
   try {
     const responseOpenai = await openaiClient.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-3.5-turbo",
       messages: [{role: "user", content: `Classify the comment responding with a number between 0 and 1. 
       Being 0 a very useless comment (not relevant, or exceptions) 
       and being 1 a very useful (relevant, doesn't matter if positive or negative, but it is a important thing to know) 

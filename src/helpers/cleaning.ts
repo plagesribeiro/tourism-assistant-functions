@@ -38,7 +38,7 @@ export const getCleanPlace = async (data: PlaceDetails) => {
 
 const cleanReviews = async (reviews: PlaceDetails["reviews"]) => {
   if (!reviews) return;
-  const orderedReviews = reviews.sort((a, b) => b.time - a.time).slice(0, 50);
+  const orderedReviews = reviews.sort((a, b) => b.time - a.time).slice(0, 90);
   const filteredReviews = orderedReviews.map(async (review) => {
     if (!review.text) return;
     const usefulnessRating = await openai.usefulnessRating(review.text);
