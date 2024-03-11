@@ -1,4 +1,6 @@
 import {PlaceDetails} from "../helpers/mapsTypes";
+import * as dotenv from "dotenv";
+dotenv.config();
 
 const googleMapsEndpoint = "https://maps.googleapis.com/maps/api";
 

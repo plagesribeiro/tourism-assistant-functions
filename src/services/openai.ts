@@ -1,6 +1,9 @@
 import OpenAI from "openai";
+import * as dotenv from "dotenv";
+dotenv.config();
 
 const openaiClient = new OpenAI({
+  organization: process.env.OPENAI_ORG_ID,
   apiKey: process.env.OPENAI_API_KEY,
 });
 

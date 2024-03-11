@@ -3,6 +3,8 @@ import * as express from "express";
 import * as admin from "firebase-admin";
 import * as cors from "cors";
 import {Request, Response, NextFunction} from "express";
+import * as dotenv from "dotenv";
+dotenv.config();
 
 interface RequestWithUser extends Request {
    user?: admin.auth.DecodedIdToken;
@@ -24,7 +26,7 @@ const checkAuth = async (req: Request, res: Response, next: NextFunction) => {
 
   const idToken = req.headers.authorization.split("Bearer ")[1];
   try {
-    if (idToken === "d700f3f6-691e-4673-a5c9-7341608c7731") {
+    if (idToken === process.env.API_KEY) {
       next();
     } else {
       const decodedToken = await admin.auth().verifyIdToken(idToken);
