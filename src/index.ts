@@ -6,10 +6,12 @@ import {Request, Response, NextFunction} from "express";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-interface RequestWithUser extends Request {
-   user?: admin.auth.DecodedIdToken;
-}
-import {getPredictions, getPlace, getPlaceDetails, getRecommendations} from "./endpoits/maps";
+interface RequestWithUser extends Request { user?: admin.auth.DecodedIdToken;}
+import {
+  getPredictions,
+  getPlaceDetails,
+  getRecommendations,
+} from "./endpoits/maps";
 
 admin.initializeApp();
 
@@ -19,7 +21,9 @@ admin.initializeApp();
 // export const publicApp = functions.https.onRequest(appPublic);
 
 const checkAuth = async (req: Request, res: Response, next: NextFunction) => {
-  if (!req.headers.authorization || !req.headers.authorization.startsWith("Bearer ")) {
+  if (
+    !req.headers.authorization || !req.headers.authorization.startsWith("Bearer ")
+  ) {
     res.status(403).send("Unauthorized");
     return;
   }
@@ -40,14 +44,15 @@ const checkAuth = async (req: Request, res: Response, next: NextFunction) => {
 
 // App Privado
 const apiPriv = express()
-  .use((cors({origin: true})))
+  .use(cors({origin: true}))
   .use(checkAuth)
   .post("/maps/predictions", getPredictions)
-  .post("/maps/getPlace", getPlace)
   .post("/maps/getPlaceDetails", getPlaceDetails)
   .post("/maps/getRecommendations", getRecommendations);
 
-export const privApi = functions.runWith({
-  timeoutSeconds: 360,
-  memory: "2GB",
-}).https.onRequest(apiPriv);
+export const privApi = functions
+  .runWith({
+    timeoutSeconds: 360,
+    memory: "2GB",
+  })
+  .https.onRequest(apiPriv);

@@ -18,22 +18,6 @@ export const getPredictions = async (req: Request, res: Response) => {
     res.status(500).json({error: "Internal Server Error"});
   }
 };
-export const getPlace = async (req: Request, res: Response) => {
-  try {
-    const inputBody = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
-
-    if (!inputBody.placeId) {
-      res.status(400).json({error: "PlaceId is required"});
-      return;
-    }
-
-    const data = await maps.getPlace({placeId: inputBody.placeId});
-    res.json(data);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({error: "Internal Server Error"});
-  }
-};
 
 export const getPlaceDetails = async (req: Request, res: Response) => {
   try {

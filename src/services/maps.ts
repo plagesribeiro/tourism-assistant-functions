@@ -19,26 +19,6 @@ const getPredictions = async (body: {input: string}) => {
     throw new Error("Internal Server Error");
   }
 };
-const getPlace = async (body: {placeId: string}) => {
-  try {
-    const queryParams = new URLSearchParams({
-      place_id: body.placeId,
-      key: process.env.GOOGLE_MAPS_API_KEY || "",
-    });
-
-    const response = await fetch(`${googleMapsEndpoint}/geocode/json?${queryParams}`);
-    const data = await response.json();
-
-    if (data.status !== "OK") {
-      console.error(data);
-      throw new Error("Internal Server Error");
-    }
-
-    return data.results as google.maps.places.PlaceResult;
-  } catch (error) {
-    throw new Error("Internal Server Error");
-  }
-};
 
 const getPlaceDetails = async (body: {placeId: string}) => {
   try {
@@ -88,7 +68,6 @@ const nearbySearch = async (
 
 export const maps = {
   getPredictions,
-  getPlace,
   getPlaceDetails,
   nearbySearch,
 };
