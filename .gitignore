@@ -11,4 +11,5 @@ node_modules/
 .env
 
 firebase-debug.log
+.firebaserc
 ui-debug.log
