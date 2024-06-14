@@ -1,68 +1,117 @@
-import {PlaceDetails} from "../helpers/mapsTypes";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as dotenv from "dotenv";
 dotenv.config();
 
-const googleMapsEndpoint = "https://maps.googleapis.com/maps/api";
+const GOOGLE_MAPS_URL = "https://maps.googleapis.com/maps/api";
+const GOOGLE_MAPS_PLACES_URL = "https://places.googleapis.com/v1/places";
+
+const getHeaders = (body: {fieldMask: any, placesInit: boolean} = {fieldMask: null, placesInit: false}) => {
+  if (!process.env.GOOGLE_MAPS_API_KEY || typeof process.env.GOOGLE_MAPS_API_KEY !== "string") throw new Error("Missing Google Maps API key");
+
+  const getHeaders = body.placesInit ?
+    Object.keys(body.fieldMask).map((key) => `places.${key}`).join(",") ?? "places.displayName" :
+    Object.keys(body.fieldMask).map((key) => `${key}`).join(",") ?? "displayName";
+  return {
+    "Content-Type": "application/json",
+    "X-Goog-Api-Key": process.env.GOOGLE_MAPS_API_KEY,
+    "X-Goog-FieldMask": getHeaders,
+  };
+};
 
 const getPredictions = async (body: {input: string}) => {
-  try {
-    const queryParams = new URLSearchParams({
-      input: body.input,
-      key: process.env.GOOGLE_MAPS_API_KEY || "",
-    });
+  if (!process.env.GOOGLE_MAPS_API_KEY || typeof process.env.GOOGLE_MAPS_API_KEY !== "string") throw new Error("Missing Google Maps API key");
 
-    const response = await fetch(`${googleMapsEndpoint}/place/autocomplete/json?${queryParams}`);
+  const queryParams = new URLSearchParams({
+    input: body.input,
+    key: process.env.GOOGLE_MAPS_API_KEY,
+  });
+
+  try {
+    const response = await fetch(`${GOOGLE_MAPS_URL}/place/autocomplete/json?${queryParams}`);
     const data = await response.json();
 
-    return data;
-  } catch (error) {
-    throw new Error("Internal Server Error");
+    if (data.status !== "OK" && data.status !== "ZERO_RESULTS") {
+      throw new Error(data.status ?? "");
+    }
+
+    return data.predictions;
+  } catch (e: any) {
+    if (e.message) throw new Error(e.message);
+    throw new Error("Unknown error");
   }
 };
 
 const getPlaceDetails = async (body: {placeId: string}) => {
   try {
-    const queryParams = new URLSearchParams({
-      place_id: body.placeId,
-      key: process.env.GOOGLE_MAPS_API_KEY || "",
+    const response = await fetch(`${GOOGLE_MAPS_PLACES_URL}/${body.placeId}`, {
+      headers: getHeaders({
+        fieldMask: {
+          reviews: true,
+        },
+        placesInit: false,
+      }),
     });
 
-    const response = await fetch(`${googleMapsEndpoint}/place/details/json?${queryParams}`);
     const data = await response.json();
 
-    if (data.status !== "OK") {
-      console.error(data);
-      throw new Error("Internal Server Error");
-    }
-
-    return data.result as PlaceDetails;
-  } catch (error) {
-    throw new Error("Internal Server Error");
+    return data.reviews;
+  } catch (e: any) {
+    if (e.message) throw new Error(e.message);
+    throw new Error("Unknown error");
   }
 };
 
-const nearbySearch = async (
-  body: {location: string, radius: string, keyword: string},
-) => {
+const nearbySearch = async (inputBody: {
+  location: {
+    lat: number;
+    lng: number;
+  };
+  radius: number;
+  keyword: string[];
+}) => {
+  if (!process.env.GOOGLE_MAPS_API_KEY) throw new Error("Missing Google Maps API key");
+
   try {
-    const queryParams = new URLSearchParams({
-      location: body.location,
-      radius: body.radius,
-      keyword: body.keyword,
-      key: process.env.GOOGLE_MAPS_API_KEY || "",
+    const response = await fetch(`${GOOGLE_MAPS_PLACES_URL}:searchNearby`, {
+      method: "POST",
+      body: JSON.stringify({
+        includedTypes: inputBody.keyword,
+        maxResultCount: 20,
+        locationRestriction: {
+          circle: {
+            center: {
+              latitude: inputBody.location.lat,
+              longitude: inputBody.location.lng,
+            },
+            radius: inputBody.radius * 1000,
+          },
+        },
+      }),
+      headers: getHeaders({
+        fieldMask: {
+          id: true,
+          displayName: true,
+          addressComponents: true,
+          businessStatus: true,
+          googleMapsUri: true,
+          currentOpeningHours: true,
+          priceLevel: true,
+          photos: true,
+          rating: true,
+          userRatingCount: true,
+          reviews: true,
+        },
+        placesInit: true,
+      }),
     });
 
-    const response = await fetch(`${googleMapsEndpoint}/place/nearbysearch/json?${queryParams}`);
     const data = await response.json();
 
-    if (data.status !== "OK") {
-      console.error(data);
-      throw new Error("Internal Server Error");
-    }
-
-    return data.results as google.maps.places.PlaceResult[];
-  } catch (error) {
-    throw new Error("Internal Server Error");
+    return data.places;
+  } catch (e: any) {
+    console.error(e);
+    if (e.message) throw new Error(e.message);
+    throw new Error("Unknown error");
   }
 };
 

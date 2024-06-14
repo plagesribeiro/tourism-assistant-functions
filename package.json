@@ -6,21 +6,23 @@
     "build:watch": "tsc --watch",
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
-    "start": "npm run shell",
+    "start": "nodemon",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log"
   },
   "engines": {
-    "node": "18"
+    "node": "20"
   },
   "main": "lib/index.js",
   "dependencies": {
+    "@supabase/supabase-js": "^2.43.4",
     "@types/googlemaps": "^3.43.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "firebase-admin": "^11.8.0",
+    "firebase-admin": "^12.1.1",
     "firebase-functions": "^4.3.1",
-    "openai": "^4.28.4"
+    "openai": "^4.28.4",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.12.0",
@@ -29,6 +31,8 @@
     "eslint-config-google": "^0.14.0",
     "eslint-plugin-import": "^2.25.4",
     "firebase-functions-test": "^3.1.0",
+    "nodemon": "^3.1.1",
+    "ts-node": "^10.9.2",
     "typescript": "^4.9.0"
   },
   "private": true

@@ -60,7 +60,7 @@ const usefulnessRating = async (text: string) => {
 
 const getEmbedding = async (text: string) => {
   const embedding = await openaiClient.embeddings.create({
-    model: "text-embedding-3-small",
+    model: "text-embedding-ada-002",
     input: text,
     encoding_format: "float",
   });

@@ -1,7 +1,7 @@
-import {PlaceDetails} from "./mapsTypes";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {openai} from "../services/openai";
 
-export const getCleanPlace = async (data: PlaceDetails) => {
+export const getCleanPlace = async (data: any) => {
   const cleanedReviews = await cleanReviews(data.reviews);
   const cleanedAddressComponents = cleanAddressComponents(data.address_components);
 
@@ -27,6 +27,10 @@ export const getCleanPlace = async (data: PlaceDetails) => {
       ratings_total: data.user_ratings_total,
       reviews: cleanedReviews ?? [],
     },
+    location: {
+      lat: data.geometry?.location.lat,
+      lng: data.geometry?.location.lng,
+    },
     name: data.name,
     weighted_rating: weightedRating,
     url: data.url,
@@ -36,10 +40,10 @@ export const getCleanPlace = async (data: PlaceDetails) => {
   return cleanData;
 };
 
-const cleanReviews = async (reviews: PlaceDetails["reviews"]) => {
+const cleanReviews = async (reviews: any) => {
   if (!reviews) return;
-  const orderedReviews = reviews.sort((a, b) => b.time - a.time).slice(0, 50);
-  const filteredReviews = orderedReviews.map(async (review) => {
+  const orderedReviews = reviews.sort((a: any, b: any) => b.time - a.time).slice(0, 100);
+  const filteredReviews = orderedReviews.map(async (review: any) => {
     if (!review.text) return;
     const usefulnessRating = await openai.usefulnessRating(review.text);
     if (usefulnessRating <= 0.5) return;
@@ -68,21 +72,21 @@ const cleanReviews = async (reviews: PlaceDetails["reviews"]) => {
   return await Promise.all(filteredReviews);
 };
 
-const cleanAddressComponents = (data: PlaceDetails["address_components"]) => {
+const cleanAddressComponents = (data: any) => {
   if (!data) return;
-  const country = data.find((c) =>
+  const country = data.find((c: any) =>
     c.types.includes("country")
   );
-  const city = data.find((c) =>
+  const city = data.find((c: any) =>
     c.types.includes("administrative_area_level_2")
   );
-  const address = data.find((c) =>
+  const address = data.find((c: any) =>
     c.types.includes("route")
   );
-  const number = data.find((c) =>
+  const number = data.find((c: any) =>
     c.types.includes("street_number")
   );
-  const state = data.find((c) =>
+  const state = data.find((c: any) =>
     c.types.includes("administrative_area_level_1")
   );
 
